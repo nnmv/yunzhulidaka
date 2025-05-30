@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动打卡系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36D399',
+                        warning: '#FFAB00',
+                        danger: '#F87272',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .input-focus {
+                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary;
+            }
+            .btn-primary {
+                @apply bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+            }
+            .btn-secondary {
+                @apply bg-secondary hover:bg-secondary/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+            }
+            .btn-warning {
+                @apply bg-warning hover:bg-warning/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+            }
+            .btn-danger {
+                @apply bg-danger hover:bg-danger/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fa fa-clock-o text-primary text-2xl mr-2"></i>
+                        <span class="text-dark font-bold text-xl">自动打卡系统</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <a href="/admin" class="text-primary hover:text-primary/80 font-medium mr-4 transition-colors duration-300">
+                        <i class="fa fa-cog mr-1"></i> 管理后台
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow">
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden card-shadow mb-6">
+                <div class="bg-primary p-4">
+                    <h2 class="text-white text-xl font-bold">打卡设置</h2>
+                </div>
+                <div class="p-6">
+                    <form id="clockForm" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                                <input type="text" id="username" name="username" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm input-focus transition-all duration-300">
+                            </div>
+                            <div>
+                                <label for="pushplus_token" class="block text-sm font-medium text-gray-700 mb-1">PushPlus Token</label>
+                                <input type="text" id="pushplus_token" name="pushplus_token" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm input-focus transition-all duration-300">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="cookie" class="block text-sm font-medium text-gray-700 mb-1">Cookie</label>
+                            <textarea id="cookie" name="cookie" rows="4" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm input-focus transition-all duration-300"></textarea>
+                            <p class="mt-1 text-sm text-gray-500">请从浏览器中复制完整的Cookie信息</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label for="morning_time" class="block text-sm font-medium text-gray-700 mb-1">早上打卡时间</label>
+                                <input type="time" id="morning_time" name="morning_time" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm input-focus transition-all duration-300">
+                            </div>
+                            <div>
+                                <label for="afternoon_time" class="block text-sm font-medium text-gray-700 mb-1">中午打卡时间</label>
+                                <input type="time" id="afternoon_time" name="afternoon_time" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm input-focus transition-all duration-300">
+                            </div>
+                            <div>
+                                <label for="evening_time" class="block text-sm font-medium text-gray-700 mb-1">晚上打卡时间</label>
+                                <input type="time" id="evening_time" name="evening_time" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm input-focus transition-all duration-300">
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button type="button" id="testButton" class="btn-warning">
+                                <i class="fa fa-paper-plane mr-1"></i> 测试推送
+                            </button>
+                            <button type="submit" id="saveButton" class="btn-primary">
+                                <i class="fa fa-save mr-1"></i> 保存设置
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 测试结果模态框 -->
+            <div id="testModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-lg max-w-md w-full mx-4 overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+                    <div class="p-6">
+                        <div class="text-center">
+                            <div id="successIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 text-green-600 mb-4 hidden">
+                                <i class="fa fa-check text-2xl"></i>
+                            </div>
+                            <div id="errorIcon" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 text-red-600 mb-4 hidden">
+                                <i class="fa fa-times text-2xl"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">测试结果</h3>
+                            <p id="testMessage" class="text-gray-500 mb-4">等待测试结果...</p>
+                        </div>
+                        <div class="mt-6 flex justify-center space-x-4">
+                            <button id="modalCancel" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-300">
+                                取消
+                            </button>
+                            <button id="modalConfirm" class="btn-secondary hidden">
+                                确认并保存
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 操作结果提示 -->
+            <div id="toast" class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 transform translate-y-20 opacity-0 transition-all duration-500 z-50 max-w-sm">
+                <div class="flex items-start">
+                    <div id="toastIcon" class="flex-shrink-0 pt-0.5">
+                        <i class="fa fa-check-circle text-green-500 text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 id="toastTitle" class="text-sm font-medium text-gray-900">成功</h3>
+                        <div class="mt-1">
+                            <p id="toastMessage" class="text-sm text-gray-500">操作已完成</p>
+                        </div>
+                    </div>
+                    <button id="closeToast" class="ml-auto flex-shrink-0 flex text-gray-400 hover:text-gray-600">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-gray-400">&copy; 2025 自动打卡系统. 保留所有权利.</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">
+                        <i class="fa fa-question-circle"></i> 帮助中心
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">
+                        <i class="fa fa-envelope"></i> 联系我们
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const clockForm = document.getElementById('clockForm');
+            const testButton = document.getElementById('testButton');
+            const saveButton = document.getElementById('saveButton');
+            const testModal = document.getElementById('testModal');
+            const modalContent = document.getElementById('modalContent');
+            const successIcon = document.getElementById('successIcon');
+            const errorIcon = document.getElementById('errorIcon');
+            const testMessage = document.getElementById('testMessage');
+            const modalCancel = document.getElementById('modalCancel');
+            const modalConfirm = document.getElementById('modalConfirm');
+            const toast = document.getElementById('toast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            const closeToast = document.getElementById('closeToast');
+            
+            // 测试推送按钮点击事件
+            testButton.addEventListener('click', function() {
+                const formData = {
+                    username: document.getElementById('username').value,
+                    morning_time: document.getElementById('morning_time').value,
+                    afternoon_time: document.getElementById('afternoon_time').value,
+                    evening_time: document.getElementById('evening_time').value,
+                    pushplus_token: document.getElementById('pushplus_token').value
+                };
+                
+                // 验证表单
+                if (!formData.username || !formData.morning_time || !formData.afternoon_time || 
+                    !formData.evening_time || !formData.pushplus_token) {
+                    showToast('错误', '请填写完整的用户名、打卡时间和PushPlus Token', 'error');
+                    return;
+                }
+                
+                // 显示模态框
+                testModal.classList.remove('hidden');
+                setTimeout(() => {
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                    modalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+                
+                testMessage.textContent = '正在发送测试消息...';
+                successIcon.classList.add('hidden');
+                errorIcon.classList.add('hidden');
+                modalConfirm.classList.add('hidden');
+                
+                // 发送测试请求
+                fetch('/api/test_push', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        testMessage.textContent = '测试消息已发送，请检查您的PushPlus接收情况';
+                        successIcon.classList.remove('hidden');
+                        modalConfirm.classList.remove('hidden');
+                    } else {
+                        testMessage.textContent = '测试消息发送失败，请检查您的PushPlus Token是否正确';
+                        errorIcon.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    testMessage.textContent = '发生错误，请稍后再试';
+                    errorIcon.classList.remove('hidden');
+                });
+            });
+            
+            // 关闭模态框
+            modalCancel.addEventListener('click', function() {
+                modalContent.classList.remove('scale-100', 'opacity-100');
+                modalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    testModal.classList.add('hidden');
+                }, 300);
+            });
+            
+            // 确认并保存设置
+            modalConfirm.addEventListener('click', function() {
+                // 关闭模态框
+                modalContent.classList.remove('scale-100', 'opacity-100');
+                modalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    testModal.classList.add('hidden');
+                    // 提交表单
+                    clockForm.dispatchEvent(new Event('submit'));
+                }, 300);
+            });
+            
+            // 保存设置表单提交
+            clockForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    username: document.getElementById('username').value,
+                    cookie: document.getElementById('cookie').value,
+                    morning_time: document.getElementById('morning_time').value,
+                    afternoon_time: document.getElementById('afternoon_time').value,
+                    evening_time: document.getElementById('evening_time').value,
+                    pushplus_token: document.getElementById('pushplus_token').value
+                };
+                
+                // 验证表单
+                if (!formData.username || !formData.cookie || !formData.morning_time || 
+                    !formData.afternoon_time || !formData.evening_time || !formData.pushplus_token) {
+                    showToast('错误', '请填写完整的表单信息', 'error');
+                    return;
+                }
+                
+                // 禁用按钮
+                saveButton.disabled = true;
+                saveButton.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> 保存中...';
+                
+                // 发送保存请求
+                fetch('/api/save_user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('成功', data.message, 'success');
+                    } else {
+                        showToast('错误', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('错误', '发生错误，请稍后再试', 'error');
+                })
+                .finally(() => {
+                    // 启用按钮
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = '<i class="fa fa-save mr-1"></i> 保存设置';
+                });
+            });
+            
+            // 显示提示框
+            function showToast(title, message, type) {
+                toastTitle.textContent = title;
+                toastMessage.textContent = message;
+                
+                if (type === 'error') {
+                    toastIcon.innerHTML = '<i class="fa fa-times-circle text-red-500 text-xl"></i>';
+                } else {
+                    toastIcon.innerHTML = '<i class="fa fa-check-circle text-green-500 text-xl"></i>';
+                }
+                
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                
+                // 3秒后自动关闭
+                setTimeout(() => {
+                    closeToastFunc();
+                }, 3000);
+            }
+            
+            // 关闭提示框
+            function closeToastFunc() {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }
+            
+            closeToast.addEventListener('click', closeToastFunc);
+        });
+    </script>
+</body>
+</html>    
